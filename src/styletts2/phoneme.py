@@ -1,5 +1,5 @@
-from gruut import sentences
-from collections.abc import Iterable
+from phonemizer.backend import EspeakBackend
+from phonemizer import phonemize
 
 
 class PhonemeConverter:
@@ -7,28 +7,24 @@ class PhonemeConverter:
         pass
 
 
-class GruutPhonemizer(PhonemeConverter):
-    def phonemize(self, text, lang='en-us'):
-        phonemized = []
-        for sent in sentences(text, lang=lang):
-            for word in sent:
-                if isinstance(word.phonemes, Iterable):
-                    phonemized.append(''.join(word.phonemes))
-                elif isinstance(word.phonemes, str):
-                    phonemized.append(word.phonemes)
-        phonemized_text = ' '.join(phonemized)
+class PhonemizerPhonemizer(PhonemeConverter):
+    def phonemize(self, text, lang="en-us"):
+        # Use the phonemizer library to generate phonemes
+        phonemized_text = phonemize(
+            text,
+            language=lang,
+            backend="espeak",
+            strip=True,
+            preserve_punctuation=True,
+        )
         return phonemized_text
-
-
-# class YourPhonemizer(Phonemizer):
-#     def phonemize(self, text):
-#         ...
 
 
 class PhonemeConverterFactory:
     @staticmethod
     def load_phoneme_converter(name: str, **kwargs):
-        if name == 'gruut':
-            return GruutPhonemizer()
+        if name == "phonemizer":
+            return PhonemizerPhonemizer()
         else:
             raise ValueError("Invalid phoneme converter.")
+
